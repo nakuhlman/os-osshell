@@ -7,14 +7,14 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <filesystem>
+#include <fstream>
+#include <iterator>
 
 using namespace std;
 
 struct stat;
 
 //namespace fs = std::filesystem;
-
-using namespace std;
 
 void allocateArrayOfCharArrays(char ***array_ptr, size_t array_length, size_t item_size);
 void freeArrayOfCharArrays(char **array, size_t array_length);
@@ -30,15 +30,33 @@ int main (int argc, char **argv)
     char* os_path = getenv("PATH");
     splitString(os_path, ':', os_path_list);
 
+    // Define ostream, string and vector used for history logging
+    ofstream file;
+    string input;
+    vector<string> history;
+
     // Example code for how to loop over NULL terminated list of strings
+    /*
     int i = 0;
     while (os_path_list[i] != NULL)
     {
         printf("PATH[%2d]: %s\n", i, os_path_list[i]);
         i++;
     }
+    */
 
-
+    // Attempt to read from a log file of the command history
+    try{
+        // input file stream is from history_log.txt
+        ifstream readHistory("history_log.txt");
+        string curLine;
+        while(getline(readHistory, curLine)){
+            // while there is still a next line, read that line into the history vector
+            history.push_back(curLine);
+        }
+    } catch (exception e) {
+        // If the file doesn't exist (exception thrown), there is no log to be read from
+    };
 
     // Welcome message
     printf("Welcome to OSShell! Please enter your commands ('exit' to quit).\n");
@@ -48,11 +66,7 @@ int main (int argc, char **argv)
     //     each with a parameter string length of up to 128 characters
     char **command_list;
     allocateArrayOfCharArrays(&command_list, 32, 128);
-
-    // Counts the number of commands that have been entered
-    string input;
-    vector<string> history;
-
+    
     // Repeat:
     while(1) {
         // Print prompt for user input: "osshell> " (no newline)
@@ -60,44 +74,45 @@ int main (int argc, char **argv)
         // Get user input for next command
         getline(cin,input);
 
-        // DEBUG
-        cout << "Input = [" << input << "]" << endl;
-
         if(input == "exit") {
-            cout << "Entered exit scope" << endl;
+            // append the most recent command to the history vector
             history.push_back(input);
+            // create a log file to save history, iterator for writing to it
+            ofstream file;
+            file.open("history_log.txt");
+            ostream_iterator<string> iterator(file, "\n");
+            // write to the log file, then exit the program
+            copy(history.begin(), history.end(),iterator);
+            file.close();
             break;
+
         } else if(input == "history") {
-            cout << "Entered history scope" << endl;
+            // print out all values for history
             for(int i = 0; i < history.size(); i++) {
                 cout << i << ": " << history[i] << endl; 
             }
+            // add "history" to the list of previous commands
             history.push_back(input);
-            
+
         } else if(input == "" || input.find_first_not_of(' ') == string::npos) {
-            cout << "Entered empty scope" << endl;
-            //  If command is `history` print all previous commands
+            // If the command entered is blank (no characters) or just a newline, don't do anything in this iteration
             continue;
-            // The last entered command is overwriting all the others in history?
 
         } else if(1 == 0/** If command is history N, print previous N commands **/) {
             // ...
+
         } else {
             cout << "Entered all other commands scope" << endl;
-            // For all other commands, check if an executable by that name is in one of the PATH directories
-            //for(int i = 0; i < os_path_list)
             // Save the command, whatever it was   
             history.push_back(input);
-            ///getenv(cmd);
 
-            //   If yes, execute it
+            // For all other commands, check if an executable by that name is in one of the PATH directories
 
-            //   If no, print error statement: "<command_name>: Error command not found" (do include newline)
+            // If yes, execute it
+
+            // If no, print error statement: "<command_name>: Error command not found" (do include newline)
         }
     }
-
-    
-
     // Free allocated memory
     freeArrayOfCharArrays(os_path_list, 16);
     //causes a seg fault
