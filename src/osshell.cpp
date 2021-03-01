@@ -9,12 +9,14 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <sys/wait.h>
+#include <sys/types.h>
 
 using namespace std;
 
 struct stat;
 
-//namespace fs = std::filesystem;
+namespace fs = std::filesystem;
 
 void allocateArrayOfCharArrays(char ***array_ptr, size_t array_length, size_t item_size);
 void freeArrayOfCharArrays(char **array, size_t array_length);
@@ -30,10 +32,12 @@ int main (int argc, char **argv)
     char* os_path = getenv("PATH");
     splitString(os_path, ':', os_path_list);
 
-    // Define ostream, string and vector used for history logging
+    // Define ostream, string and vector used for history logging, also array of char* for passing arguments
     ofstream file;
     string input;
     vector<string> history;
+    char** args;
+    args = (char **)malloc(50 *sizeof(char *));
 
     // Example code for how to loop over NULL terminated list of strings
     /*
@@ -41,9 +45,13 @@ int main (int argc, char **argv)
     while (os_path_list[i] != NULL)
     {
         printf("PATH[%2d]: %s\n", i, os_path_list[i]);
+        for(const auto& part : fs::directory_iterator(os_path_list[i])){
+            std::cout << part << "\n";
+        }
         i++;
     }
     */
+    
 
     // Attempt to read from a log file of the command history
     try{
@@ -74,6 +82,9 @@ int main (int argc, char **argv)
         // Get user input for next command
         getline(cin,input);
 
+        args[0] = strtok(const_cast<char*>(input.c_str()), " ");
+
+
         if(input == "exit") {
             // append the most recent command to the history vector
             history.push_back(input);
@@ -102,15 +113,52 @@ int main (int argc, char **argv)
             // ...
 
         } else {
-            cout << "Entered all other commands scope" << endl;
             // Save the command, whatever it was   
             history.push_back(input);
 
             // For all other commands, check if an executable by that name is in one of the PATH directories
+            string exe;
+            string bin = "/bin/";
+            fs::path p = bin + input;
+            int i = 0;
+
+            while (os_path_list[i] != NULL)
+            {
+                for(const auto& part : fs::directory_iterator(os_path_list[i]))
+                {
+                    if(part.path().compare(p) == 0)
+                    {
+                        exe = part.path();
+                        break;
+                    }
+                }
+                i++;
+            }
 
             // If yes, execute it
+            if(exe.compare("") != 0)
+            {
+                //Fork
+                pid_t parent = getpid();
+                pid_t pid = fork();
 
+                if(pid == -1){
+                    //fork error
+                    std::cout << "Fork Error\n";
+                } else if(pid > 0) {
+                    int status;
+                    waitpid(pid, &status, 0);
+                    //std::cout << "parent restart\n";
+                } else if (pid == 0){
+                    //Exec
+                    std::cout << "Path is: " << exe << " and args: " << args << "\n";
+                    execv(const_cast<char*>(exe.c_str()), args);
+                }
+            }
             // If no, print error statement: "<command_name>: Error command not found" (do include newline)
+            else {
+                std::cout << input << ": Error command not found\n";
+            }
         }
     }
     // Free allocated memory
