@@ -109,8 +109,27 @@ int main (int argc, char **argv)
             // If the command entered is blank (no characters) or just a newline, don't do anything in this iteration
             continue;
 
-        } else if(1 == 0/** If command is history N, print previous N commands **/) {
-            // ...
+        } else if(input.find("history")) {
+            if(isdigit(input[8]) && input[8] > 0) {
+                // if "history" is present in the input string and there is at least one digit present at string index[8], print previous n commands of history
+                
+                /*
+                Another option if stoi() doesn't work
+                string num = "";
+                for(int i = 8; !isdigit(input[i]); i++) {
+                    num += input[i];
+                }
+                */
+                int numPrevCmds = stoi(input);
+                for(int i = 0; i < numPrevCmds; i++) {
+                    cout << i << ": " << history[i] << endl; 
+                }
+            } else if(input.find("clear", 8, 13)) {
+                // the clear keyword must be present between characters 8 and 13 of the input string for the clear() command to execute
+                history.clear();
+            } else {
+                cout << "Error: history expects an integer > 0 (or 'clear')" << endl;
+            }
 
         } else {
             // Save the command, whatever it was   
