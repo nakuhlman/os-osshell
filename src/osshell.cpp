@@ -118,14 +118,19 @@ int main (int argc, char **argv)
                 cout << "entered digit cmd" << endl;
                 // Parse a numeric argument for history if a digit is detected in the second string of command_list
                 int historyNumericArg = stoi(command_list[1]);
-                // Let the user know if there are less commands to print than they entered
-                if(historyNumericArg > history.size()) {
-                    cout << "Only " << history.size() << "entries exist in the history log. Displaying all entries:" << endl;
+
+                if(history.size() == 0) {
+                    cout << "There are no previous commands to display." << endl;
+                } else {
+                    if(historyNumericArg > history.size()) {
+                        cout << "Only " << history.size() << " entries exist in the history log. Displaying all entries." << endl;
+                    }
+                    // Print the number of previous commands specified
+                    for(int i = 0; i < historyNumericArg; i++) {
+                        cout << i << ": " << history[i] << endl; 
+                    }
                 }
-                // Print the number of previous commands specified
-                for(int i = 0; i < historyNumericArg; i++) {
-                    cout << i << ": " << history[i] << endl; 
-                }
+
                 // Add the command to the list of previous commands
                 history.push_back(input);
 
