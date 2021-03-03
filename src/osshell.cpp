@@ -32,108 +32,122 @@ int main (int argc, char **argv)
     char* os_path = getenv("PATH");
     splitString(os_path, ':', os_path_list);
 
-    // Define ostream, string and vector used for history logging, also array of char* for passing arguments
+    // File output stream for writing to the history log file 
     ofstream file;
+    // Holds the raw input as a string
     string input;
+    // Stores string representations of raw commands entered by the user
     vector<string> history;
     char** args;
     args = (char **)malloc(50 *sizeof(char *));
 
-    // Example code for how to loop over NULL terminated list of strings
-    /*
-    int i = 0;
-    while (os_path_list[i] != NULL)
-    {
-        printf("PATH[%2d]: %s\n", i, os_path_list[i]);
-        for(const auto& part : fs::directory_iterator(os_path_list[i])){
-            std::cout << part << "\n";
-        }
-        i++;
-    }
-    */
-    
-
     // Attempt to read from a log file of the command history
     try{
-        // input file stream is from history_log.txt
+        // cmd file stream is from history_log.txt
         ifstream readHistory("history_log.txt");
         string curLine;
         while(getline(readHistory, curLine)){
-            // while there is still a next line, read that line into the history vector
+            // While there is still a next line, read that line into the history vector
             history.push_back(curLine);
         }
+        cout << "successfully read from history log file" << endl;
     } catch (exception e) {
         // If the file doesn't exist (exception thrown), there is no log to be read from
     };
 
-    // Welcome message
     printf("Welcome to OSShell! Please enter your commands ('exit' to quit).\n");
-
-    // Allocate space for input command lists
-    // `command_list` supports up to 32 command line parameters, 
-    //     each with a parameter string length of up to 128 characters
+    // Allocate space for cmd command lists
     char **command_list;
+    // `command_list` supports up to 32 command line parameters, each with a parameter string length of up to 128 characters
     allocateArrayOfCharArrays(&command_list, 32, 128);
     
-    // Repeat:
+    /********************************/
+    /** BEGIN SHELL OPERATION LOOP **/
+    /********************************/
     while(1) {
-        // Print prompt for user input: "osshell> " (no newline)
         printf("osshell> ");
-        // Get user input for next command
+        // Get user input, store in 'input'
         getline(cin,input);
+        // Split the input, delimited by a space, and store in command_list
+        splitString(input, ' ', command_list); // <- something is going on here, segmentation fault on second iteration
 
         args[0] = strtok(const_cast<char*>(input.c_str()), " ");
 
-
-        if(input == "exit") {
-            // append the most recent command to the history vector
-            history.push_back(input);
-            // create a log file to save history, iterator for writing to it
-            ofstream file;
-            file.open("history_log.txt");
-            ostream_iterator<string> iterator(file, "\n");
-            // write to the log file, then exit the program
-            copy(history.begin(), history.end(),iterator);
-            file.close();
-            break;
-
-        } else if(input == "history") {
-            // print out all values for history
-            for(int i = 0; i < history.size(); i++) {
-                cout << i << ": " << history[i] << endl; 
-            }
-            // add "history" to the list of previous commands
-            history.push_back(input);
-
-        } else if(input == "" || input.find_first_not_of(' ') == string::npos) {
+        /********************/
+        /** PARSE COMMANDS **/
+        /********************/
+        if(command_list[0] == NULL) {
+            /*******************/
+            /** EMPTY COMMAND **/
+            /*******************/
+            cout << "entered blank/space/tabs" << endl;
             // If the command entered is blank (no characters) or just a newline, don't do anything in this iteration
             continue;
 
-        } else if(input.find("history")) {
-            if(isdigit(input[8]) && input[8] > 0) {
-                // if "history" is present in the input string and there is at least one digit present at string index[8], print previous n commands of history
-                
-                /*
-                Another option if stoi() doesn't work
-                string num = "";
-                for(int i = 8; !isdigit(input[i]); i++) {
-                    num += input[i];
-                }
-                */
-                int numPrevCmds = stoi(input);
-                for(int i = 0; i < numPrevCmds; i++) {
+        } else if(strcmp(command_list[0], "exit") == 0) {
+            cout << "entered exit" << endl;
+            // Append the most recent command to the history vector
+            history.push_back(input);
+            // Create a log file to save history, 
+            ofstream file;
+            // Open the log file
+            file.open("history_log.txt");
+            // Create an iterator for writing to the log file
+            ostream_iterator<string> iterator(file, "\n");
+            // Write to the log file, then exit the program
+            copy(history.begin(), history.end(), iterator);
+            file.close();
+            break;
+
+        } else if(strcmp(command_list[0], "history") == 0) {
+            
+            /*************/
+            /** HISTORY **/
+            /*************/
+            if(command_list[1] == NULL) {
+                cout << "entered normal history cmd" << endl;
+
+                // Display the entire history
+                for(int i = 0; i < history.size(); i++) {
                     cout << i << ": " << history[i] << endl; 
                 }
-            } else if(input.find("clear", 8, 13)) {
-                // the clear keyword must be present between characters 8 and 13 of the input string for the clear() command to execute
+                // Add the history command to the history
+                history.push_back(input);
+
+            } else if(isdigit(command_list[1][0])) {
+                cout << "entered digit cmd" << endl;
+                // Parse a numeric argument for history if a digit is detected in the second string of command_list
+                int historyNumericArg = stoi(command_list[1]);
+                // Let the user know if there are less commands to print than they entered
+                if(historyNumericArg > history.size()) {
+                    cout << "Only " << history.size() << "entries exist in the history log. Displaying all entries:" << endl;
+                }
+                // Print the number of previous commands specified
+                for(int i = 0; i < historyNumericArg; i++) {
+                    cout << i << ": " << history[i] << endl; 
+                }
+                // Add the command to the list of previous commands
+                history.push_back(input);
+
+            } else if(strcmp(command_list[1], "clear") == 0) {
+                cout << "entered history clear" << endl;
+                // Clear the history vector completely if the user entered the 'clear' command after history
+                if(history.size() == 0) {
+                    cout << "History is already empty." << endl;
+                }
                 history.clear();
+
             } else {
+                // If history's arguments are invalid
                 cout << "Error: history expects an integer > 0 (or 'clear')" << endl;
             }
 
         } else {
-            // Save the command, whatever it was   
-            history.push_back(input);
+
+            /*********************************/
+            /** OTHER COMMANDS (SEARCH FOR) **/
+            /*********************************/
+            cout << "entered other command" << endl;
 
             // For all other commands, check if an executable by that name is in one of the PATH directories
             string exe;
@@ -178,13 +192,16 @@ int main (int argc, char **argv)
             else {
                 std::cout << input << ": Error command not found\n";
             }
+            // Save the command, whatever it was   
+            history.push_back(input);
+            
         }
+        freeArrayOfCharArrays(command_list, 32);
     }
     // Free allocated memory
     freeArrayOfCharArrays(os_path_list, 16);
     //causes a seg fault
-    //freeArrayOfCharArrays(command_list, 32);
-
+    freeArrayOfCharArrays(command_list, 32);
     return 0;
 }
 
