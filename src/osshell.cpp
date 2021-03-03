@@ -38,8 +38,8 @@ int main (int argc, char **argv)
     string input;
     // Stores string representations of raw commands entered by the user
     vector<string> history;
-    char** args;
-    args = (char **)malloc(50 *sizeof(char *));
+    char** arguments;
+    arguments = (char **)malloc(50 *sizeof(char *));
 
     // Attempt to read from a log file of the command history
     try{
@@ -71,7 +71,14 @@ int main (int argc, char **argv)
         // Split the input, delimited by a space, and store in command_list
         splitString(input, ' ', command_list); // <- something is going on here, segmentation fault on second iteration
 
-        args[0] = strtok(const_cast<char*>(input.c_str()), " ");
+        int i = 0;
+        char *token = strtok(const_cast<char*>(input.c_str()), " ");
+        while (token != NULL)
+        {
+            arguments[i] = token;
+            token = strtok(NULL, " ");
+            i++;
+        }
 
         /********************/
         /** PARSE COMMANDS **/
@@ -147,17 +154,43 @@ int main (int argc, char **argv)
                 cout << "Error: history expects an integer > 0 (or 'clear')" << endl;
             }
 
-        } else {
-
+        } 
             /*********************************/
             /** OTHER COMMANDS (SEARCH FOR) **/
             /*********************************/
-            cout << "entered other command" << endl;
+        else if (input.at(0) == '/' || input.at(0) == '.') { // Check if command starts with "." or "/", if so look for that path
+
+            fs::path fp = input;
+            if(fs::exists(fp)){
+                if(((fs::status(fp).permissions() & fs::perms::owner_exec) != fs::perms::none) && !fs::is_directory(fp)){
+                    //Fork
+                    pid_t parent = getpid();
+                    pid_t pid = fork();
+
+                    if(pid == -1){
+                        //fork error
+                        std::cout << "Fork Error\n";
+                    } else if(pid > 0) {
+                        //parent waits for child
+                        int status;
+                        waitpid(pid, &status, 0);
+                    } else if (pid == 0){
+                        //Exec
+                        execv(const_cast<char*>(fp.c_str()), arguments);
+                    }
+                } else {//path not executable
+                    std::cout << input << ": Error command not found\n";
+                }
+            } else {//path not found
+                std::cout << input << ": Error command not found\n";
+            }
+
+        } else {
 
             // For all other commands, check if an executable by that name is in one of the PATH directories
             string exe;
             string bin = "/bin/";
-            fs::path p = bin + input;
+            fs::path p = bin + arguments[0];
             int i = 0;
 
             while (os_path_list[i] != NULL)
@@ -186,11 +219,9 @@ int main (int argc, char **argv)
                 } else if(pid > 0) {
                     int status;
                     waitpid(pid, &status, 0);
-                    //std::cout << "parent restart\n";
                 } else if (pid == 0){
                     //Exec
-                    std::cout << "Path is: " << exe << " and args: " << args << "\n";
-                    execv(const_cast<char*>(exe.c_str()), args);
+                    execv(const_cast<char*>(exe.c_str()), arguments);
                 }
             }
             // If no, print error statement: "<command_name>: Error command not found" (do include newline)
@@ -206,7 +237,7 @@ int main (int argc, char **argv)
     // Free allocated memory
     freeArrayOfCharArrays(os_path_list, 16);
     //causes a seg fault
-    freeArrayOfCharArrays(command_list, 32);
+    //freeArrayOfCharArrays(command_list, 32);
     return 0;
 }
 
