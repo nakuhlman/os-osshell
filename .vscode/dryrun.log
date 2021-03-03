@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/nkuhlman/Desktop/CISC310/Programs/os-osshell'
+g++ -std=c++17 -c -o obj/osshell.o src/osshell.cpp 
+g++ -std=c++17 -o bin/osshell obj/osshell.o 
+make: Leaving directory '/home/nkuhlman/Desktop/CISC310/Programs/os-osshell'
+ 
