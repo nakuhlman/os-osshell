@@ -34,6 +34,8 @@ int main (int argc, char **argv)
     ofstream file;
     // Holds the user's raw input as a string
     string input;
+    // Used by history to record the user's command as it was entered (spaces, tabs, etc.)
+    string cmd;
     // Stores UNDIVIDED string representations of raw commands entered by the user
     vector<string> history;
     // To store command user types in after it is split into its various parameters
@@ -70,11 +72,11 @@ int main (int argc, char **argv)
         printf("osshell> ");
         // Get user input, store in 'input'
         getline(cin,input);
+        // Store the raw input in cmd for recording in history (unmodified)
+        cmd = input;
         // Split the input, delimited by a space, and store in command_list
         splitString(input, ' ', command_list); // <- something is going on here, segmentation fault on second iteration
-        cout << "FLAG3" << endl;
-        
-        
+    
         int i = 0;
         char *token = strtok(const_cast<char*>(input.c_str()), " ");
         while (token != NULL)
@@ -83,13 +85,11 @@ int main (int argc, char **argv)
             token = strtok(NULL, " ");
             i++;
         }
-        
 
         /*******************/
         /** EMPTY COMMAND **/
         /*******************/
         if(command_list.size() == 0) {
-            cout << "entered blank/space/tabs" << endl;
             // If the command entered is blank (no characters) or just a newline, don't do anything in this iteration
             continue;
 
@@ -97,9 +97,8 @@ int main (int argc, char **argv)
         /** EXIT **/
         /**********/
         } else if(command_list[0] == "exit") {
-            cout << "entered exit" << endl;
             // Append the most recent command to the history vector
-            history.push_back(input);
+            history.push_back(cmd);
             // Create a log file to save history, 
             ofstream file;
             // Open the log file
@@ -115,23 +114,19 @@ int main (int argc, char **argv)
         /** HISTORY **/
         /*************/
         } else if(command_list[0] == "history") {
-            cout << "FLAG4" << endl;
             if(command_list.size() == 1) {
-                cout << "entered normal history cmd" << endl;
-
                 // Display the entire history
                 if(history.size() == 0) {
                     cout << "There are no previous commands to display." << endl;
                 } else {                
                     for(int i = 0; i < history.size(); i++) {
-                        cout << i << ": " << history[i] << endl; 
+                        cout << "  " << i + 1 << ": " << history[i] << endl; 
                     }
                 }
                 // Add the history command to the history
-                history.push_back(input);
+                history.push_back(cmd);
 
-            } else if(isdigit(command_list[1][0])) {
-                cout << "entered digit cmd" << endl;
+            } else if(command_list[1].find_first_not_of("0123456789") == string::npos) {
                 // Parse a numeric argument for history if a digit is detected in the second string of command_list
                 int historyNumericArg = stoi(command_list[1]);
 
@@ -144,7 +139,7 @@ int main (int argc, char **argv)
                     // Print the number of previous commands specified
                     for(int i = 0; i < historyNumericArg; i++) {
                         if(i > history.size() - 1) { break; }
-                        cout << history.size() - 1 - historyNumericArg + i << ": " << history[history.size() - 1 - i] << endl; 
+                        cout << "  " << history.size() - historyNumericArg + i << ": " << history[history.size() - 1 - i] << endl; 
                     }
                 }
 
@@ -152,7 +147,6 @@ int main (int argc, char **argv)
                 history.push_back(input);
 
             } else if(command_list[1] == "clear") {
-                cout << "entered history clear" << endl;
                 // Clear the history vector completely if the user entered the 'clear' command after history
                 if(history.size() == 0) {
                     cout << "History is already empty." << endl;
@@ -186,19 +180,17 @@ int main (int argc, char **argv)
                         //parent waits for child
                         int status;
                         waitpid(pid, &status, 0);
-                    } else if (pid == 0){
-                        cout << "EXECUTING" << endl;
+                    } else if (pid == 0) {
                         execv(const_cast<char*>(fp.c_str()), arguments);
                     }
                 } else {//path not executable
-                    std::cout << input << ": Error command not found\n";
+                    std::cout << cmd << ": Error command not found\n";
                 }
             } else {//path not found
-                std::cout << input << ": Error command not found\n";
+                std::cout << cmd << ": Error command not found\n";
             }
 
         } else {
-            cout << "entered all other commands" << endl;
             // For all other commands, check if an executable by that name is in one of the PATH directories
             string exe;
             string bin = "/bin/";
@@ -233,26 +225,18 @@ int main (int argc, char **argv)
                     waitpid(pid, &status, 0);
                 } else if (pid == 0){
                     //Exec
-                    cout << "EXECUTING" << endl;
                     execv(const_cast<char*>(exe.c_str()), arguments);
                 }
             }
             // If no, print error statement: "<command_name>: Error command not found" (do include newline)
             else {
-                std::cout << input << ": Error command not found\n";
+                std::cout << cmd << ": Error command not found\n";
             }
             // Save the command, whatever it was   
-            history.push_back(input);
-            printf("here 2\n");
+            history.push_back(cmd);
             
         }
-        //freeArrayOfCharArrays(command_list, 32);
     }
-    
-    // Free allocated memory
-    //freeArrayOfCharArrays(command_list_exec, 16);
-    //causes a seg fault
-    //freeArrayOfCharArrays(command_list, 32);
     return 0;
 }
 
@@ -262,7 +246,7 @@ int main (int argc, char **argv)
    result: vector of strings - result will be stored here
 */
 void splitString(std::string text, char d, std::vector<std::string>& result)
-{   cout << "FLAG1" << endl;
+{   
     enum states { NONE, IN_WORD, IN_STRING } state = NONE;
     int i;
     std::string token;
@@ -314,7 +298,6 @@ void splitString(std::string text, char d, std::vector<std::string>& result)
     {
         result.push_back(token);
     }
-    cout << "FLAG2" << endl;
 }
 
 /*
