@@ -43,6 +43,9 @@ int main (int argc, char **argv)
     // Allocating memory to command_list_exec
     command_list_exec = (char **)malloc(50 *sizeof(char *));
 
+    char** arguments;
+    arguments = (char **)malloc(50 *sizeof(char *));
+
     /***********************************/
     /** READING FROM HISTORY LOG FILE **/
     /***********************************/
@@ -70,7 +73,8 @@ int main (int argc, char **argv)
         // Split the input, delimited by a space, and store in command_list
         splitString(input, ' ', command_list); // <- something is going on here, segmentation fault on second iteration
         cout << "FLAG3" << endl;
-        /*
+        
+        
         int i = 0;
         char *token = strtok(const_cast<char*>(input.c_str()), " ");
         while (token != NULL)
@@ -79,7 +83,7 @@ int main (int argc, char **argv)
             token = strtok(NULL, " ");
             i++;
         }
-        */
+        
 
         /*******************/
         /** EMPTY COMMAND **/
@@ -167,8 +171,8 @@ int main (int argc, char **argv)
         /***************************************/
         else if (command_list[0][0] == '/' || command_list[0][0] == '.') {
             // If the command starts with "." or "/", look for that path
-            vectorOfStringsToArrayOfCharArrays(command_list, &command_list_exec);
-            fs::path fp = command_list_exec[0];
+            //vectorOfStringsToArrayOfCharArrays(command_list, &arguments);
+            fs::path fp = arguments[0];
             if(fs::exists(fp)){
                 if(((fs::status(fp).permissions() & fs::perms::owner_exec) != fs::perms::none) && !fs::is_directory(fp)){
                     //Fork
@@ -184,7 +188,7 @@ int main (int argc, char **argv)
                         waitpid(pid, &status, 0);
                     } else if (pid == 0){
                         cout << "EXECUTING" << endl;
-                        //execv(const_cast<char*>(fp.c_str()), arguments);
+                        execv(const_cast<char*>(fp.c_str()), arguments);
                     }
                 } else {//path not executable
                     std::cout << input << ": Error command not found\n";
@@ -198,12 +202,12 @@ int main (int argc, char **argv)
             // For all other commands, check if an executable by that name is in one of the PATH directories
             string exe;
             string bin = "/bin/";
-            fs::path p = bin + command_list_exec[0];
+            fs::path p = bin + arguments[0];
             int i = 0;
 
             for(int i = 0; i < os_path_list.size(); i++) {
-                /*
-                for(const auto& part : fs::directory_iterator(os_path_list)
+                
+                for(const auto& part : fs::directory_iterator(os_path_list[i]))
                 {
                     if(part.path().compare(p) == 0)
                     {
@@ -211,7 +215,7 @@ int main (int argc, char **argv)
                         break;
                     }
                 }
-                */
+                
             }
 
             // If yes, execute it
@@ -230,7 +234,7 @@ int main (int argc, char **argv)
                 } else if (pid == 0){
                     //Exec
                     cout << "EXECUTING" << endl;
-                    //execv(const_cast<char*>(exe.c_str()), arguments);
+                    execv(const_cast<char*>(exe.c_str()), arguments);
                 }
             }
             // If no, print error statement: "<command_name>: Error command not found" (do include newline)
