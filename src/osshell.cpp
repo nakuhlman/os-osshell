@@ -40,12 +40,9 @@ int main (int argc, char **argv)
     vector<string> history;
     // To store command user types in after it is split into its various parameters
     vector<string> command_list; 
-    // Holds the contents of command_list after it's converted to an array of character arrays
-    char ** command_list_exec;
-    // Allocating memory to command_list_exec
-    command_list_exec = (char **)malloc(50 *sizeof(char *));
-
+    // Holds the char* representation of the input arguments
     char** arguments;
+    // Allocates memory to arguments
     arguments = (char **)malloc(50 *sizeof(char *));
 
     /***********************************/
@@ -77,6 +74,7 @@ int main (int argc, char **argv)
         // Split the input, delimited by a space, and store in command_list
         splitString(input, ' ', command_list); // <- something is going on here, segmentation fault on second iteration
     
+        // Same as previous comment, but stored in arguments
         int i = 0;
         char *token = strtok(const_cast<char*>(input.c_str()), " ");
         while (token != NULL)
@@ -85,6 +83,27 @@ int main (int argc, char **argv)
             token = strtok(NULL, " ");
             i++;
         }
+
+        //There was an issue with the code using arguments from previous inputs
+        //But magically this seems to have solved it *fingers crossed*
+        arguments[i] = NULL;
+        
+
+        //remove quotations
+        
+        for(int x = 0; x < i; x++){
+            for(int j = 0; j < strlen(arguments[x]); j++){
+                if(arguments[x][j] == '"'){
+                    //likely won't work with two quotes next to each other
+                    for(int k = j; k < strlen(arguments[x]); k++){
+                        arguments[x][k] = arguments[x][k+1];
+                    }
+                }
+            }
+        }
+        
+
+
 
         /*******************/
         /** EMPTY COMMAND **/
@@ -155,6 +174,7 @@ int main (int argc, char **argv)
 
             } else {
                 // If history's arguments are invalid
+                history.push_back(cmd);
                 cout << "Error: history expects an integer > 0 (or 'clear')" << endl;
             }
 
@@ -165,7 +185,6 @@ int main (int argc, char **argv)
         /***************************************/
         else if (command_list[0][0] == '/' || command_list[0][0] == '.') {
             // If the command starts with "." or "/", look for that path
-            //vectorOfStringsToArrayOfCharArrays(command_list, &arguments);
             fs::path fp = arguments[0];
             if(fs::exists(fp)){
                 if(((fs::status(fp).permissions() & fs::perms::owner_exec) != fs::perms::none) && !fs::is_directory(fp)){
