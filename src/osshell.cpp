@@ -18,30 +18,34 @@ struct stat;
 
 namespace fs = std::filesystem;
 
-void allocateArrayOfCharArrays(char ***array_ptr, size_t array_length, size_t item_size);
+void splitString(std::string text, char d, std::vector<std::string>& result);
+void vectorOfStringsToArrayOfCharArrays(std::vector<std::string>& list, char ***result);
 void freeArrayOfCharArrays(char **array, size_t array_length);
-void splitString(std::string text, char d, char **result);
 
 int main (int argc, char **argv)
 {
     // Get list of paths to binary executables
-    // `os_path_list` supports up to 16 directories in PATH, 
-    //     each with a directory name length of up to 64 characters
-    char **os_path_list;
-    allocateArrayOfCharArrays(&os_path_list, 16, 64);
     char* os_path = getenv("PATH");
+    // Vector of strings to hold the list of paths obtained by getenv()
+    vector<string> os_path_list;
+    // Split the string holding the OS paths, delimited by ':', and store in os_path_list
     splitString(os_path, ':', os_path_list);
-
     // File output stream for writing to the history log file 
     ofstream file;
-    // Holds the raw input as a string
+    // Holds the user's raw input as a string
     string input;
-    // Stores string representations of raw commands entered by the user
+    // Stores UNDIVIDED string representations of raw commands entered by the user
     vector<string> history;
-    char** arguments;
-    arguments = (char **)malloc(50 *sizeof(char *));
+    // To store command user types in after it is split into its various parameters
+    vector<string> command_list; 
+    // Holds the contents of command_list after it's converted to an array of character arrays
+    char ** command_list_exec;
+    // Allocating memory to command_list_exec
+    command_list_exec = (char **)malloc(50 *sizeof(char *));
 
-    // Attempt to read from a log file of the command history
+    /***********************************/
+    /** READING FROM HISTORY LOG FILE **/
+    /***********************************/
     try{
         // cmd file stream is from history_log.txt
         ifstream readHistory("history_log.txt");
@@ -50,17 +54,12 @@ int main (int argc, char **argv)
             // While there is still a next line, read that line into the history vector
             history.push_back(curLine);
         }
-        cout << "successfully read from history log file" << endl;
     } catch (exception e) {
         // If the file doesn't exist (exception thrown), there is no log to be read from
     };
 
     printf("Welcome to OSShell! Please enter your commands ('exit' to quit).\n");
-    // Allocate space for cmd command lists
-    char **command_list;
-    // `command_list` supports up to 32 command line parameters, each with a parameter string length of up to 128 characters
-    allocateArrayOfCharArrays(&command_list, 32, 128);
-    
+
     /********************************/
     /** BEGIN SHELL OPERATION LOOP **/
     /********************************/
@@ -70,7 +69,8 @@ int main (int argc, char **argv)
         getline(cin,input);
         // Split the input, delimited by a space, and store in command_list
         splitString(input, ' ', command_list); // <- something is going on here, segmentation fault on second iteration
-
+        cout << "FLAG3" << endl;
+        /*
         int i = 0;
         char *token = strtok(const_cast<char*>(input.c_str()), " ");
         while (token != NULL)
@@ -79,19 +79,20 @@ int main (int argc, char **argv)
             token = strtok(NULL, " ");
             i++;
         }
+        */
 
-        /********************/
-        /** PARSE COMMANDS **/
-        /********************/
-        if(command_list[0] == NULL) {
-            /*******************/
-            /** EMPTY COMMAND **/
-            /*******************/
+        /*******************/
+        /** EMPTY COMMAND **/
+        /*******************/
+        if(command_list.size() == 0) {
             cout << "entered blank/space/tabs" << endl;
             // If the command entered is blank (no characters) or just a newline, don't do anything in this iteration
             continue;
 
-        } else if(strcmp(command_list[0], "exit") == 0) {
+        /**********/
+        /** EXIT **/
+        /**********/
+        } else if(command_list[0] == "exit") {
             cout << "entered exit" << endl;
             // Append the most recent command to the history vector
             history.push_back(input);
@@ -106,17 +107,21 @@ int main (int argc, char **argv)
             file.close();
             break;
 
-        } else if(strcmp(command_list[0], "history") == 0) {
-            
-            /*************/
-            /** HISTORY **/
-            /*************/
-            if(command_list[1] == NULL) {
+        /*************/
+        /** HISTORY **/
+        /*************/
+        } else if(command_list[0] == "history") {
+            cout << "FLAG4" << endl;
+            if(command_list.size() == 1) {
                 cout << "entered normal history cmd" << endl;
 
                 // Display the entire history
-                for(int i = 0; i < history.size(); i++) {
-                    cout << i << ": " << history[i] << endl; 
+                if(history.size() == 0) {
+                    cout << "There are no previous commands to display." << endl;
+                } else {                
+                    for(int i = 0; i < history.size(); i++) {
+                        cout << i << ": " << history[i] << endl; 
+                    }
                 }
                 // Add the history command to the history
                 history.push_back(input);
@@ -130,18 +135,19 @@ int main (int argc, char **argv)
                     cout << "There are no previous commands to display." << endl;
                 } else {
                     if(historyNumericArg > history.size()) {
-                        cout << "Only " << history.size() << " entries exist in the history log. Displaying all entries." << endl;
+                        cout << "Only " << history.size() << " command(s) in the history log. Displaying all entries." << endl;
                     }
                     // Print the number of previous commands specified
                     for(int i = 0; i < historyNumericArg; i++) {
-                        cout << i << ": " << history[i] << endl; 
+                        if(i > history.size() - 1) { break; }
+                        cout << history.size() - 1 - historyNumericArg + i << ": " << history[history.size() - 1 - i] << endl; 
                     }
                 }
 
                 // Add the command to the list of previous commands
                 history.push_back(input);
 
-            } else if(strcmp(command_list[1], "clear") == 0) {
+            } else if(command_list[1] == "clear") {
                 cout << "entered history clear" << endl;
                 // Clear the history vector completely if the user entered the 'clear' command after history
                 if(history.size() == 0) {
@@ -154,13 +160,15 @@ int main (int argc, char **argv)
                 cout << "Error: history expects an integer > 0 (or 'clear')" << endl;
             }
 
-        } 
-            /*********************************/
-            /** OTHER COMMANDS (SEARCH FOR) **/
-            /*********************************/
-        else if (input.at(0) == '/' || input.at(0) == '.') { // Check if command starts with "." or "/", if so look for that path
+        }
 
-            fs::path fp = input;
+        /***************************************/
+        /** COMMANDS STARTING WITH "." OR "/" **/
+        /***************************************/
+        else if (command_list[0][0] == '/' || command_list[0][0] == '.') {
+            // If the command starts with "." or "/", look for that path
+            vectorOfStringsToArrayOfCharArrays(command_list, &command_list_exec);
+            fs::path fp = command_list_exec[0];
             if(fs::exists(fp)){
                 if(((fs::status(fp).permissions() & fs::perms::owner_exec) != fs::perms::none) && !fs::is_directory(fp)){
                     //Fork
@@ -175,8 +183,8 @@ int main (int argc, char **argv)
                         int status;
                         waitpid(pid, &status, 0);
                     } else if (pid == 0){
-                        //Exec
-                        execv(const_cast<char*>(fp.c_str()), arguments);
+                        cout << "EXECUTING" << endl;
+                        //execv(const_cast<char*>(fp.c_str()), arguments);
                     }
                 } else {//path not executable
                     std::cout << input << ": Error command not found\n";
@@ -186,16 +194,16 @@ int main (int argc, char **argv)
             }
 
         } else {
-
+            cout << "entered all other commands" << endl;
             // For all other commands, check if an executable by that name is in one of the PATH directories
             string exe;
             string bin = "/bin/";
-            fs::path p = bin + arguments[0];
+            fs::path p = bin + command_list_exec[0];
             int i = 0;
 
-            while (os_path_list[i] != NULL)
-            {
-                for(const auto& part : fs::directory_iterator(os_path_list[i]))
+            for(int i = 0; i < os_path_list.size(); i++) {
+                /*
+                for(const auto& part : fs::directory_iterator(os_path_list)
                 {
                     if(part.path().compare(p) == 0)
                     {
@@ -203,7 +211,7 @@ int main (int argc, char **argv)
                         break;
                     }
                 }
-                i++;
+                */
             }
 
             // If yes, execute it
@@ -221,7 +229,8 @@ int main (int argc, char **argv)
                     waitpid(pid, &status, 0);
                 } else if (pid == 0){
                     //Exec
-                    execv(const_cast<char*>(exe.c_str()), arguments);
+                    cout << "EXECUTING" << endl;
+                    //execv(const_cast<char*>(exe.c_str()), arguments);
                 }
             }
             // If no, print error statement: "<command_name>: Error command not found" (do include newline)
@@ -230,58 +239,30 @@ int main (int argc, char **argv)
             }
             // Save the command, whatever it was   
             history.push_back(input);
+            printf("here 2\n");
             
         }
-        freeArrayOfCharArrays(command_list, 32);
+        //freeArrayOfCharArrays(command_list, 32);
     }
+    
     // Free allocated memory
-    freeArrayOfCharArrays(os_path_list, 16);
+    //freeArrayOfCharArrays(command_list_exec, 16);
     //causes a seg fault
     //freeArrayOfCharArrays(command_list, 32);
     return 0;
 }
 
 /*
-   array_ptr: pointer to list of strings to be allocated
-   array_length: number of strings to allocate space for in the list
-   item_size: length of each string to allocate space for
-*/
-void allocateArrayOfCharArrays(char ***array_ptr, size_t array_length, size_t item_size)
-{
-    int i;
-    *array_ptr = new char*[array_length];
-    for (i = 0; i < array_length; i++)
-    {
-        (*array_ptr)[i] = new char[item_size];
-    }
-}
-
-/*
-   array: list of strings to be freed
-   array_length: number of strings in the list to free
-*/
-void freeArrayOfCharArrays(char **array, size_t array_length)
-{
-    int i;
-    for (i = 0; i < array_length; i++)
-    {
-        delete[] array[i];
-    }
-    delete[] array;
-}
-
-/*
    text: string to split
    d: character delimiter to split `text` on
-   result: NULL terminated list of strings (char **) - result will be stored here
+   result: vector of strings - result will be stored here
 */
-void splitString(std::string text, char d, char **result)
-{
+void splitString(std::string text, char d, std::vector<std::string>& result)
+{   cout << "FLAG1" << endl;
     enum states { NONE, IN_WORD, IN_STRING } state = NONE;
-
     int i;
-    std::vector<std::string> list;
     std::string token;
+    result.clear();
     for (i = 0; i < text.length(); i++)
     {
         char c = text[i];
@@ -304,7 +285,7 @@ void splitString(std::string text, char d, char **result)
             case IN_WORD:
                 if (c == d)
                 {
-                    list.push_back(token);
+                    result.push_back(token);
                     state = NONE;
                 }
                 else
@@ -315,7 +296,7 @@ void splitString(std::string text, char d, char **result)
             case IN_STRING:
                 if (c == '\"')
                 {
-                    list.push_back(token);
+                    result.push_back(token);
                     state = NONE;
                 }
                 else
@@ -327,12 +308,41 @@ void splitString(std::string text, char d, char **result)
     }
     if (state != NONE)
     {
-        list.push_back(token);
+        result.push_back(token);
     }
+    cout << "FLAG2" << endl;
+}
 
+/*
+   list: vector of strings to convert to an array of character arrays
+   result: pointer to an array of character arrays when the vector of strings is copied to
+*/
+void vectorOfStringsToArrayOfCharArrays(std::vector<std::string>& list, char ***result)
+{
+    int i;
+    int result_length = list.size() + 1;
+    *result = new char*[result_length];
     for (i = 0; i < list.size(); i++)
     {
-        strcpy(result[i], list[i].c_str());
+        (*result)[i] = new char[list[i].length() + 1];
+        strcpy((*result)[i], list[i].c_str());
     }
-    result[list.size()] = NULL;
+    (*result)[list.size()] = NULL;
+}
+
+/*
+   array: list of strings (array of character arrays) to be freed
+   array_length: number of strings in the list to free
+*/
+void freeArrayOfCharArrays(char **array, size_t array_length)
+{
+    int i;
+    for (i = 0; i < array_length; i++)
+    {
+        if (array[i] != NULL)
+        {
+            delete[] array[i];
+        }
+    }
+    delete[] array;
 }
