@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Mar  3 17:26:52 2021
+# Make data base, printed on Thu Mar  4 18:10:16 2021
 
 # Variables
 
@@ -45,11 +45,11 @@ CURDIR := /home/nkuhlman/Desktop/CISC310/Programs/os-osshell
 # makefile
 SHELL = /bin/sh
 # environment
-SNAP_DATA = /var/snap/code/55
+SNAP_DATA = /var/snap/code/56
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
-JOURNAL_STREAM = 8:36156
+JOURNAL_STREAM = 8:35684
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # environment
@@ -73,11 +73,11 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-_ = /snap/code/55/usr/share/code/code
+_ = /snap/code/56/usr/share/code/code
 # makefile (from 'Makefile', line 11)
 OBJS = $(addprefix $(OBJDIR)/, osshell.o)
 # environment
-MANAGERPID = 1338
+MANAGERPID = 1482
 # environment
 CLUTTER_IM_MODULE = ibus
 # environment
@@ -85,7 +85,7 @@ LESSOPEN = | /usr/bin/lesspipe %s
 # makefile (from 'Makefile', line 14)
 mkdirs := 
 # environment
-GSETTINGS_SCHEMA_DIR = /snap/code/55/usr/share/glib-2.0/schemas
+GSETTINGS_SCHEMA_DIR = /snap/code/56/usr/share/glib-2.0/schemas
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
@@ -93,15 +93,15 @@ PATH = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/
 # environment
 GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
-SESSION_MANAGER = local/CISC310-VM:@/tmp/.ICE-unix/1679,unix/CISC310-VM:/tmp/.ICE-unix/1679
+SESSION_MANAGER = local/CISC310-VM:@/tmp/.ICE-unix/1821,unix/CISC310-VM:/tmp/.ICE-unix/1821
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
 GDK_PIXBUF_MODULE_FILE = /home/nkuhlman/snap/code/common/.cache/gdk-pixbuf-loaders.cache
 # environment
-SNAP = /snap/code/55
+SNAP = /snap/code/56
 # environment
-SNAP_VERSION = 622cb03f
+SNAP_VERSION = 42e27fe5
 # environment
 XDG_MENU_PREFIX = gnome-
 # environment
@@ -111,9 +111,9 @@ DISABLE_WAYLAND = 1
 # environment
 VSCODE_CRASH_REPORTER_START_OPTIONS = {"companyName":"Microsoft","productName":"VSCode","submitURL":"appcenter://code?aid=fba07a4d-84bd-4fc8-a125-9640fc8ce171&uid=010be0dd-024b-47e9-a451-94b07cce4f40&iid=010be0dd-024b-47e9-a451-94b07cce4f40&sid=010be0dd-024b-47e9-a451-94b07cce4f40","uploadToServer":true}
 # environment
-INVOCATION_ID = 20e47ef1bf4b46e0b2c2b123f90e0d6b
+INVOCATION_ID = a1acdf574b984889a74e02136d554414
 # environment
-GDK_PIXBUF_MODULEDIR = /snap/code/55/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
+GDK_PIXBUF_MODULEDIR = /snap/code/56/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
 # makefile (from 'Makefile', line 5)
 LIB = 
 # default
@@ -125,7 +125,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 2932
+GIO_LAUNCHED_DESKTOP_FILE_PID = 4337
 # automatic
 %F = $(notdir $%)
 # environment
@@ -143,7 +143,7 @@ PWD = /home/nkuhlman/Desktop/CISC310/Programs/os-osshell
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 1549
+SSH_AGENT_PID = 1703
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -183,7 +183,7 @@ MAKECMDGOALS := all
 # environment
 QT_IM_MODULE = ibus
 # environment
-SNAP_USER_DATA = /home/nkuhlman/snap/code/55
+SNAP_USER_DATA = /home/nkuhlman/snap/code/56
 # environment
 SHLVL = 0
 # makefile (from 'Makefile', line 9)
@@ -191,7 +191,7 @@ BINDIR = bin
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-f6d1635f-4768-44af-a2ad-60c8ff8972c0.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-03c48e4c-d746-4ccb-8562-c0e830e742c9.sock
 # makefile (from 'Makefile', line 12)
 EXEC = $(addprefix $(BINDIR)/, osshell)
 # default
@@ -199,7 +199,7 @@ MAKE_VERSION := 4.2.1
 # environment
 USER = nkuhlman
 # environment
-SNAP_REVISION = 55
+SNAP_REVISION = 56
 # makefile
 .DEFAULT_GOAL := all
 # makefile (from 'Makefile', line 4)
@@ -211,13 +211,13 @@ XDG_CURRENT_DESKTOP = Unity
 # default
 MAKE_COMMAND := make
 # environment
-VSCODE_NODE_CACHED_DATA_DIR = /home/nkuhlman/.config/Code/CachedData/622cb03f7e070a9670c94bae1a45d78d7181fbd4
+VSCODE_NODE_CACHED_DATA_DIR = /home/nkuhlman/.config/Code/CachedData/42e27fe5cdc58539dad9867970326a297eb8cacf
 # default
 .VARIABLES := 
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-ca23d3ef-1.53.2-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-ca23d3ef-1.54.0-main.sock
 # environment
 BAMF_DESKTOP_FILE_HINT = /var/lib/snapd/desktop/applications/code_code.desktop
 # makefile
@@ -275,10 +275,10 @@ GJS_DEBUG_OUTPUT = stderr
 # environment
 LANG = en_US.UTF-8
 # environment
-VSCODE_PID = 3012
+VSCODE_PID = 4379
 # variable set hash-table stats:
  
-# Load=133/1024=13%, Rehash=0, Collisions=26/171=15%
+# Load=133/1024=13%, Rehash=0, Collisions=27/177=15%
 
 # Pattern-specific Variable Values
 
@@ -286,14 +286,13 @@ VSCODE_PID = 3012
 
 # Directories
 
-# . (device 2053, inode 3671106): 11 files, no impossibilities.
+# . (device 2053, inode 3671106): 13 files, no impossibilities.
 # src (device 2053, inode 3678521): 1 files, no impossibilities so far.
 
-# 12 files, no impossibilities in 2 directories.
+# 14 files, no impossibilities in 2 directories.
 
 # Implicit Rules
 
- 
 obj/%.o: src/%.cpp
 #  recipe to execute (from 'Makefile', line 23):
 	$(CXX) $(CXXFLAGS) -c -o $@ $< $(INCLUDE)
@@ -307,7 +306,9 @@ all: bin/osshell
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has been updated.
-#  Successfully updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/6=0%
 
 # Not a target:
 Makefile:
@@ -319,9 +320,27 @@ Makefile:
 obj/osshell.o: src/osshell.cpp
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'osshell'
-#  Last modified 2021-03-02 20:55:57.230862497
+#  Last modified 2021-03-03 22:15:55.175526844
 #  File has been updated.
-#  Successfully updated.
+#  Needs to be updated (-q is set).
+# automatic
+# @ := obj/osshell.o
+# automatic
+# % := 
+# automatic
+# * := osshell
+# automatic
+# + := src/osshell.cpp
+# automatic
+# | := 
+# automatic
+# < := src/osshell.cpp
+# automatic
+# ^ := src/osshell.cpp
+# automatic
+# ? := src/osshell.cpp
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=2/16=12%
 #  recipe to execute (from 'Makefile', line 23):
 	$(CXX) $(CXXFLAGS) -c -o $@ $< $(INCLUDE)
 
@@ -341,15 +360,17 @@ clean:
 # Not a target:
 src/osshell.cpp:
 #  Implicit rule search has been done.
-#  Last modified 2021-03-02 20:55:41.226567037
+#  Last modified 2021-03-03 22:20:09.687220933
 #  File has been updated.
 #  Successfully updated.
 
 bin/osshell: obj/osshell.o
 #  Implicit rule search has not been done.
-#  Last modified 2021-03-02 20:55:57.326887444
+#  Last modified 2021-03-03 22:15:55.279531802
 #  File has been updated.
-#  Successfully updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/6=0%
 #  recipe to execute (from 'Makefile', line 20):
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIB)
 
@@ -361,12 +382,12 @@ bin/osshell: obj/osshell.o
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 24 / storage = 204 B / avg = 8 B
-# current buf: size = 8162 B / used = 204 B / count = 24 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 26 / storage = 231 B / avg = 8 B
+# current buf: size = 8162 B / used = 231 B / count = 26 / avg = 8 B
 
-# strcache performance: lookups = 35 / hit rate = 31%
+# strcache performance: lookups = 37 / hit rate = 29%
 # hash-table stats:
-# Load=24/8192=0%, Rehash=0, Collisions=1/35=3%
-# Finished Make data base on Wed Mar  3 17:26:52 2021
+# Load=26/8192=0%, Rehash=0, Collisions=1/37=3%
+# Finished Make data base on Thu Mar  4 18:10:16 2021
 
  

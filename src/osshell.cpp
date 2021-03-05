@@ -88,9 +88,7 @@ int main (int argc, char **argv)
         //But magically this seems to have solved it *fingers crossed*
         arguments[i] = NULL;
         
-
         //remove quotations
-        
         for(int x = 0; x < i; x++){
             for(int j = 0; j < strlen(arguments[x]); j++){
                 if(arguments[x][j] == '"'){
@@ -101,9 +99,6 @@ int main (int argc, char **argv)
                 }
             }
         }
-        
-
-
 
         /*******************/
         /** EMPTY COMMAND **/
@@ -148,6 +143,8 @@ int main (int argc, char **argv)
             } else if(command_list[1].find_first_not_of("0123456789") == string::npos) {
                 // Parse a numeric argument for history if a digit is detected in the second string of command_list
                 int historyNumericArg = stoi(command_list[1]);
+                // Add the command to the list of previous commands
+                history.push_back(cmd);
 
                 if(history.size() == 0) {
                     cout << "There are no previous commands to display." << endl;
@@ -158,12 +155,9 @@ int main (int argc, char **argv)
                     // Print the number of previous commands specified
                     for(int i = 0; i < historyNumericArg; i++) {
                         if(i > history.size() - 1) { break; }
-                        cout << "  " << history.size() - historyNumericArg + i << ": " << history[history.size() - 1 - i] << endl; 
+                        cout << "  " << history.size() - historyNumericArg + i << ": " << history[history.size() - historyNumericArg + i - 1] << endl; 
                     }
-                }
-
-                // Add the command to the list of previous commands
-                history.push_back(input);
+                }                
 
             } else if(command_list[1] == "clear") {
                 // Clear the history vector completely if the user entered the 'clear' command after history
